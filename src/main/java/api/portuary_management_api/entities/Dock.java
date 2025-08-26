@@ -28,7 +28,7 @@ public class Dock {
     @OneToMany(mappedBy = "dock", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Ship> ships;
     @JsonIgnore
-    @OneToMany(mappedBy = "docks", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "dock", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Freight> freights;
 
 

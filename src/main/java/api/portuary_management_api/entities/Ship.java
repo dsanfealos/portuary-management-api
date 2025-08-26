@@ -26,6 +26,14 @@ public class Ship {
     @ManyToOne(optional = false)
     private Dock dock;
 
+    public Ship(String name, String captain, Integer crewshipMembers, ShipType type, Dock dock) {
+        this.name = name;
+        this.captain = captain;
+        this.crewshipMembers = crewshipMembers;
+        this.type = type;
+        this.dock = dock;
+    }
+
     public ShipSize howBig(){
         if(crewshipMembers < 5) return ShipSize.SMALL;
         if(crewshipMembers < 10) return ShipSize.REGULAR;

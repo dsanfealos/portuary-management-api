@@ -4,9 +4,7 @@ import api.portuary_management_api.api.dto.DockDTO;
 import api.portuary_management_api.entities.Dock;
 import api.portuary_management_api.entities.Ship;
 import api.portuary_management_api.entities.daos.DockDAO;
-import api.portuary_management_api.entities.daos.ShipDAO;
 import api.portuary_management_api.entities.util.ShipSize;
-import api.portuary_management_api.entities.util.ShipType;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,12 +12,10 @@ import java.util.Optional;
 @Service
 public class DockService {
 
-    private DockDAO dockDAO;
-    private ShipDAO shipDAO;
+    private final DockDAO dockDAO;
 
-    public DockService(DockDAO dockDAO, ShipDAO shipDAO) {
+    public DockService(DockDAO dockDAO) {
         this.dockDAO = dockDAO;
-        this.shipDAO = shipDAO;
     }
 
     public void shipEnters(Ship ship){
