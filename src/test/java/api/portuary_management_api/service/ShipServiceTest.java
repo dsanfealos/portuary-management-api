@@ -3,6 +3,7 @@ package api.portuary_management_api.service;
 import api.portuary_management_api.entities.Dock;
 import api.portuary_management_api.entities.Ship;
 import api.portuary_management_api.entities.util.ShipType;
+import api.portuary_management_api.services.DockService;
 import api.portuary_management_api.services.ShipService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
@@ -21,6 +22,9 @@ public class ShipServiceTest {
     @Autowired
     private ShipService shipService;
 
+    @Autowired
+    private DockService dockService;
+
     private Ship ship;
     private Dock dockA;
     private Dock dockB;
@@ -38,10 +42,13 @@ public class ShipServiceTest {
     @Test
     @Transactional
     public void testChangeDock(){
-        shipService.changeDock(ship, dockB);
+        Dock dock1 = dockService.retrieveDock(1L);
+        Dock dock2 = dockService.retrieveDock(2L);
+        Ship ship1 = shipService.retrieveShip(1L);
+        shipService.changeDock(ship1, dock2.getId());
         Long idB = ship.getDock().getId();
-        Assertions.assertEquals(dockB.getId(), idB);
-        Assertions.assertEquals(dockA.getOccupied(), 147);
-        Assertions.assertEquals(dockB.getOccupied(), 503);
+        Assertions.assertEquals(dock2.getId(), idB);
+        Assertions.assertEquals(dock1.getOccupied(), 293);
+        Assertions.assertEquals(dock2.getOccupied(), 207);
     }
 }

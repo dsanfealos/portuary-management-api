@@ -1,4 +1,4 @@
-package api.portuary_management_api.api.dto;
+package api.portuary_management_api.api.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

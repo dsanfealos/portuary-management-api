@@ -18,11 +18,16 @@ public class Ship {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "name")
     private String name;
+    @Column(name = "captain")
     private String captain;
+    @Column(name = "crewship_members")
     private Integer crewshipMembers;
+    @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private ShipType type;
+    @JoinColumn(name = "dock")
     @ManyToOne(optional = false)
     private Dock dock;
 
