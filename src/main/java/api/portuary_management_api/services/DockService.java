@@ -84,4 +84,17 @@ public class DockService {
         return dock;
     }
 
+    public boolean removeDock(Long id){
+        try{
+            dockDAO.deleteById(id);
+        }catch (Exception e){
+            return false;
+        }
+        return true;
+    }
+
+    public List<Dock> retrieveAllDocks(){
+        return dockDAO.findAll();
+    }
+
 }

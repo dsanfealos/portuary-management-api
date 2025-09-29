@@ -1,5 +1,6 @@
 package api.portuary_management_api.services;
 
+import api.portuary_management_api.api.models.ModifyCrewBody;
 import api.portuary_management_api.api.models.ShipDTO;
 import api.portuary_management_api.entities.Dock;
 import api.portuary_management_api.entities.Ship;
@@ -28,6 +29,16 @@ public class ShipService {
         ship.setDock(newDock);
         dockService.shipEnters(ship);
         shipDAO.save(ship);
+    }
+
+    public Ship modifyCrewQuantity(ModifyCrewBody body, Long id){
+        Ship ship = retrieveShip(id);
+        if(body.isIncrease()){
+            ship.setCrewshipMembers(ship.getCrewshipMembers() + body.getQuantity());
+        }else{
+            ship.setCrewshipMembers(ship.getCrewshipMembers() - body.getQuantity());
+        }
+        return ship;
     }
 
     //CRUD

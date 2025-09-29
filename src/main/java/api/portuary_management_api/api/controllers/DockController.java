@@ -20,14 +20,13 @@ public class DockController {
         this.dockService = dockService;
     }
 
-    //EP. Ver Barcos de de Dock X con tipo Y
+
     @GetMapping("/{id}/{type}")
     public ResponseEntity<List<Ship>> listTypeInDock(@PathVariable Long id, @PathVariable String type){
         List<Ship> ships = dockService.listTypeInDock(id, type);
         return new ResponseEntity<>(ships, HttpStatus.OK);
     }
 
-    //EP. Ver Barcos de Dock X con tamaño Z
     @GetMapping("/{id}/{size}")
     public ResponseEntity<List<Ship>> listSizeInDock(@PathVariable Long id, @PathVariable String size){
         List<Ship> ships = dockService.listSizeInDock(id, size);
@@ -50,10 +49,26 @@ public class DockController {
                 new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping
+    public ResponseEntity<List<Dock>> getAllDocks(){
+        List<Dock> dockList = dockService.retrieveAllDocks();
+        return new ResponseEntity<>(dockList, HttpStatus.OK);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Dock> updateDock(@PathVariable Long id, @RequestBody DockDTO body){
         Dock dock = dockService.updateDock(id, body);
         return null;
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDock(@PathVariable Long id){
+        if (dockService.removeDock(id)){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+
 
 }

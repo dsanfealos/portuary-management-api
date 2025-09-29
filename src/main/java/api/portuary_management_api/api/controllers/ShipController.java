@@ -1,5 +1,6 @@
 package api.portuary_management_api.api.controllers;
 
+import api.portuary_management_api.api.models.ModifyCrewBody;
 import api.portuary_management_api.api.models.ChangeDockBody;
 import api.portuary_management_api.api.models.ShipDTO;
 import api.portuary_management_api.entities.Ship;
@@ -20,7 +21,7 @@ public class ShipController {
         this.shipService = shipService;
     }
 
-    //EP. Cambiar Dock
+
     @PostMapping("/change-dock")
     public ResponseEntity<Ship> changeDock(@RequestBody ChangeDockBody body){
         Ship ship = shipService.retrieveShip(body.getShipId());
@@ -30,9 +31,12 @@ public class ShipController {
 
     //EP. Cargar/Descargar Mercancía
 
-    //EP. Aumentar/Disminuir tripulación
 
-
+    @PostMapping("/{id}/crew")
+    public ResponseEntity<Ship> changeCrewQuantity(@RequestBody ModifyCrewBody body, @PathVariable Long id){
+        Ship ship = shipService.modifyCrewQuantity(body, id);
+        return new ResponseEntity<>(ship, HttpStatus.OK);
+    }
 
     //CRUD
 
