@@ -8,6 +8,8 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 @Service
 public class JWTService {
 
@@ -16,6 +18,7 @@ public class JWTService {
     @Value("${jwt.issuer}")
     private String issuer;
 
+    @Value("${jwt.expiryInSeconds}")
     private int expiryInSeconds;
     private int resetExpiryInSeconds;
     private Algorithm algorithm;
@@ -24,7 +27,6 @@ public class JWTService {
     private static final String VERIFICATION_EMAIL_KEY = "VERIFICATION_EMAIL";
     private static final String RESET_PASSWORD_EMAIL_KEY = "RESET_PASSWORD_EMAIL";
 
-    //It works AFTER other injections (@Value, @Autowired) are done. Prevents null exception
     @PostConstruct
     public void postConstruct(){
         algorithm = Algorithm.HMAC256(algorithmKey);
@@ -33,6 +35,7 @@ public class JWTService {
     public String generateJWT(LocalUser user){
         return JWT.create()
                 .withClaim(USERNAME_KEY, user.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + (expiryInSeconds * 1000L)))
                 .withIssuer(issuer)
                 .sign(algorithm);
     }

@@ -10,24 +10,29 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private CustomUserDetailsService userDetailsService;
+    private final JWTRequestFilter jwtRequestFilter;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
+    public SecurityConfig(JWTRequestFilter jwtRequestFilter) {
+        this.jwtRequestFilter = jwtRequestFilter;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
 
         http.csrf(AbstractHttpConfigurer::disable).cors(AbstractHttpConfigurer::disable);
+        //JWT filter is called BEFORE the default filter
+        http.addFilterBefore(jwtRequestFilter, AuthorizationFilter.class);
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**", "/").permitAll()
-                .anyRequest().authenticated());
+                .requestMatchers("/auth/register", "/auth/me","/auth/login",
+                        "/auth/verify", "/error").permitAll()
+                .requestMatchers("/user/**").authenticated()
+                .anyRequest().hasRole("ADMIN"));
 
         return http.build();
     }

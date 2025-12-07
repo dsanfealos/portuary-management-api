@@ -1,65 +1,57 @@
 package api.portuary_management_api.api.controllers;
 
-import api.portuary_management_api.api.models.LoginBody;
-import api.portuary_management_api.api.models.RegistrationBody;
+import api.portuary_management_api.api.exception.UserAlreadyExistsException;
+import api.portuary_management_api.api.models.auth.LoggedUserResponse;
+import api.portuary_management_api.api.models.auth.LoginBody;
+import api.portuary_management_api.api.models.auth.LoginResponse;
+import api.portuary_management_api.api.models.auth.RegistrationBody;
 import api.portuary_management_api.entities.LocalUser;
-import api.portuary_management_api.entities.Role;
-import api.portuary_management_api.entities.daos.LocalUserDAO;
-import api.portuary_management_api.entities.daos.RoleDAO;
+import api.portuary_management_api.services.LocalUserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Collections;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthenticationController {
 
-    private final AuthenticationManager authenticationManager;
-    private final LocalUserDAO localUserDAO;
-    private final RoleDAO roleDAO;
-    private final PasswordEncoder passwordEncoder;
+    private final LocalUserService localUserService;
 
-    public AuthenticationController(AuthenticationManager authenticationManager, LocalUserDAO localUserDAO, RoleDAO roleDAO, PasswordEncoder passwordEncoder) {
-        this.authenticationManager = authenticationManager;
-        this.localUserDAO = localUserDAO;
-        this.roleDAO = roleDAO;
-        this.passwordEncoder = passwordEncoder;
+    public AuthenticationController(LocalUserService localUserService) {
+        this.localUserService = localUserService;
     }
 
+
     @PostMapping("/register")
-    public ResponseEntity<LocalUser> register(@RequestBody RegistrationBody registrationBody){
-        if (localUserDAO.existsByUsername(registrationBody.getUsername())){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Void> register(@Valid @RequestBody RegistrationBody registrationBody){
+        try {
+            if(localUserService.registerUser(registrationBody) == null){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch(UserAlreadyExistsException e){
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
-
-        LocalUser user = new LocalUser();
-        user.setUsername(registrationBody.getUsername());
-        user.setEmail(registrationBody.getEmail());
-        user.setPassword(passwordEncoder.encode(registrationBody.getPassword()));
-
-        Role roles = roleDAO.findByName("USER").get();
-        user.setRoles(Collections.singletonList(roles));
-
-        localUserDAO.save(user);
-
-        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginBody loginBody){
-        Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(
-                                loginBody.getUsername(), loginBody.getPassword()));
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginBody loginBody){
+        String jwt = localUserService.loginUser(loginBody);
+        if (jwt == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        LoginResponse response = new LoginResponse();
+        response.setJwt(jwt);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        return new ResponseEntity<>("Inicio de sesión correcto.", HttpStatus.OK);
+    @GetMapping("/me")
+    public ResponseEntity<LoggedUserResponse> getLoggedUser(@AuthenticationPrincipal LocalUser user){
+        LoggedUserResponse response = new LoggedUserResponse(user.getId(), user.getUsername(),
+                user.getEmail(), user.getFirstName(), user.getLastName(), user.isEmailVerified());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }

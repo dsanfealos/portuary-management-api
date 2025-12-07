@@ -22,8 +22,6 @@ public class EncryptionService {
     }
 
     public boolean verifyPassword(String password, String hash){
-        //password is the normally typed password, and hash is the
-        //hashed password at DB (accessed like user.getPassword)
         return BCrypt.checkpw(password, hash);
     }
 
