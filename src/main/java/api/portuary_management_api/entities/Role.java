@@ -26,10 +26,6 @@ public class Role {
     private String name;
 
     @JsonIgnore
-    @ManyToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
-    @JoinTable(
-            name="roles_users",
-            joinColumns={@JoinColumn(name="ROL_ID", referencedColumnName="ID")},
-            inverseJoinColumns={@JoinColumn(name="USER_ID", referencedColumnName="ID")})
+    @ManyToMany(mappedBy = "roles", cascade = CascadeType.REMOVE)
     private List<LocalUser> users = new ArrayList<>();
 }

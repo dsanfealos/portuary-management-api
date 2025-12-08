@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -37,8 +38,12 @@ public class LocalUser {
     private boolean emailVerified;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "users", cascade = CascadeType.REMOVE)
-    private List<Role> roles;
+    @ManyToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+    @JoinTable(
+            name="users_roles",
+            joinColumns={@JoinColumn(name="user_id", referencedColumnName="id")},
+            inverseJoinColumns={@JoinColumn(name="rol_id", referencedColumnName="id")})
+    private List<Role> roles = new ArrayList<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

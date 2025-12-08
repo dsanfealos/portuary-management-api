@@ -46,14 +46,12 @@ public class LocalUserService {
         user.setFirstName(body.getFirstName());
         user.setLastName(body.getLastName());
         user.setPassword(encryptionService.encryptPassword(body.getPassword()));
+
         Optional<Role> opRole = roleDAO.findByName(BASE_ROL);
         if (opRole.isPresent()){
-            List<Role> roles = List.of(opRole.get());
-            user.setRoles(roles);
+            user.setRoles(List.of(opRole.get()));
         }else{
-            Role newRole = addRoleIfNotExists();
-            List<Role> roles = List.of(newRole);
-            user.setRoles(roles);
+            user.setRoles(List.of(addRoleIfNotExists()));
         }
 
 
