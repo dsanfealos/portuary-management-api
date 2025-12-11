@@ -19,8 +19,10 @@ public class Freight {
     private Long id;
     private String type;
     private Integer quantity;
-    @ManyToOne(optional = false)
+    @ManyToOne
     private Dock dock;
+    @ManyToOne
+    private Ship ship;
 
     public void addQuantity(int extraQuantity){
         this.quantity = this.quantity + extraQuantity;

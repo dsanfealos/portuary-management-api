@@ -36,15 +36,15 @@ public class ShipServiceTest {
         dockB = new Dock(3L, "Puerto del Norte", "Bilbao", 3000, 500
                 , Collections.emptyList(), Collections.emptyList());
         ship = new Ship(4L, "Merluza", "Laura", 6
-                , ShipType.FISHING, dockA);
+                , ShipType.FISHING, dockA, Collections.emptyList());
     }
 
     @Test
     @Transactional
     public void testChangeDock(){
-        Dock dock1 = dockService.retrieveDock(1L);
-        Dock dock2 = dockService.retrieveDock(2L);
-        Ship ship1 = shipService.retrieveShip(1L);
+        Dock dock1 = dockService.retrieve(1L);
+        Dock dock2 = dockService.retrieve(2L);
+        Ship ship1 = shipService.retrieve(1L);
         shipService.changeDock(ship1, dock2.getId());
         Long idB = ship.getDock().getId();
         Assertions.assertEquals(dock2.getId(), idB);

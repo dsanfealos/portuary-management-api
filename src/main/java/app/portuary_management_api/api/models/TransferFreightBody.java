@@ -7,12 +7,14 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class DockDTO {
+@AllArgsConstructor
+public class TransferFreightBody {
 
-    private String name;
-    private String city;
-    private Integer capacity;
-    private Integer occupied;
+    private Long freightId;
+    private Long shipId;
+    private Long dockId;
+    private Integer quantity;
+    private boolean fromShip;
+
 }

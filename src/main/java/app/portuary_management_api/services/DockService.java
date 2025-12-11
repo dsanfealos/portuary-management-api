@@ -1,10 +1,12 @@
 package app.portuary_management_api.services;
 
-import app.portuary_management_api.api.models.DockDTO;
+import app.portuary_management_api.api.models.dtos.DockDTO;
 import app.portuary_management_api.entities.Dock;
+import app.portuary_management_api.entities.Freight;
 import app.portuary_management_api.entities.Ship;
 import app.portuary_management_api.entities.daos.DockDAO;
 import app.portuary_management_api.entities.util.ShipSize;
+import app.portuary_management_api.services.util.FreightUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
-public class DockService {
+public class DockService implements CRUDServiceInterface<Dock, DockDTO>{
 
     private final DockDAO dockDAO;
 
@@ -46,46 +48,61 @@ public class DockService {
     }
 
     public List<Ship> listTypeInDock(Long id, String type){
-        Dock dock = retrieveDock(id);
+        Dock dock = retrieve(id);
         return dock.getShips().stream()
                 .filter(ship -> Objects.equals(ship.getType().name(), type))
                 .toList();
     }
 
     public List<Ship> listSizeInDock(Long id, String size){
-        Dock dock = retrieveDock(id);
+        Dock dock = retrieve(id);
         return dock.getShips().stream()
                 .filter(ship -> Objects.equals(ship.howBig().name(), size))
                 .toList();
     }
 
+    public Integer howManyItemsOfFreight(String freightType, Long dockId){
+        Dock dock = retrieve(dockId);
+        if (dock != null){
+            List<Freight> freights = dock.getFreights();
+            return FreightUtils.howManyItemsOfFreight(freightType, freights);
+        }
+        return null;
+    }
+
+    public Integer howManyDifferentFreightsOfType(String freightType, Long dockId){
+        Dock dock = retrieve(dockId);
+        if (dock != null){
+            List<Freight> freights = dock.getFreights();
+            return FreightUtils.howManyDifferentFreightsOfType(freightType, freights);
+        }
+        return null;
+    }
+
     //CRUD
 
-    public Dock createDock(DockDTO dto){
+    @Override
+    public Dock create(DockDTO dto){
         Dock dock = new Dock();
-        dock.setName(dto.getName());
-        dock.setCity(dto.getCity());
-        dock.setCapacity(dto.getCapacity());
-        dock.setOccupied(dto.getOccupied());
+        mapDtoToEntity(dto, dock);
         return dockDAO.save(dock);
     }
 
-    public Dock retrieveDock(Long id){
+    @Override
+    public Dock retrieve(Long id){
         Optional<Dock> optDock = dockDAO.findById(id);
         return optDock.orElse(null);
     }
 
-    public Dock updateDock(Long id, DockDTO dto){
-        Dock dock = retrieveDock(id);
-        dock.setOccupied(dto.getOccupied());
-        dock.setName(dto.getName());
-        dock.setCapacity(dto.getCapacity());
-        dock.setCity(dto.getCity());
-
+    @Override
+    public Dock update(Long id, DockDTO dto){
+        Dock dock = retrieve(id);
+        mapDtoToEntity(dto, dock);
         return dock;
     }
 
-    public boolean removeDock(Long id){
+    @Override
+    public boolean remove(Long id){
         try{
             dockDAO.deleteById(id);
         }catch (Exception e){
@@ -94,8 +111,17 @@ public class DockService {
         return true;
     }
 
-    public List<Dock> retrieveAllDocks(){
+    @Override
+    public List<Dock> retrieveAll(){
         return dockDAO.findAll();
+    }
+
+
+    private void mapDtoToEntity(DockDTO dto, Dock entity){
+        entity.setOccupied(dto.getOccupied());
+        entity.setName(dto.getName());
+        entity.setCapacity(dto.getCapacity());
+        entity.setCity(dto.getCity());
     }
 
 }

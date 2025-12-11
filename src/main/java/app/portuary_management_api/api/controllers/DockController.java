@@ -1,6 +1,6 @@
 package app.portuary_management_api.api.controllers;
 
-import app.portuary_management_api.api.models.DockDTO;
+import app.portuary_management_api.api.models.dtos.DockDTO;
 import app.portuary_management_api.entities.Dock;
 import app.portuary_management_api.entities.Ship;
 import app.portuary_management_api.services.DockService;
@@ -38,32 +38,32 @@ public class DockController {
 
     @PostMapping
     public ResponseEntity<Dock> createDock(@RequestBody DockDTO body){
-        Dock dock = dockService.createDock(body);
+        Dock dock = dockService.create(body);
         return new ResponseEntity<>(dock, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Dock> getDock(@PathVariable Long id){
-        Dock dock = dockService.retrieveDock(id);
+        Dock dock = dockService.retrieve(id);
         return dock != null? new ResponseEntity<>(dock, HttpStatus.OK):
                 new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping
     public ResponseEntity<List<Dock>> getAllDocks(){
-        List<Dock> dockList = dockService.retrieveAllDocks();
+        List<Dock> dockList = dockService.retrieveAll();
         return new ResponseEntity<>(dockList, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Dock> updateDock(@PathVariable Long id, @RequestBody DockDTO body){
-        Dock dock = dockService.updateDock(id, body);
-        return null;
+        Dock dock = dockService.update(id, body);
+        return new ResponseEntity<>(dock, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDock(@PathVariable Long id){
-        if (dockService.removeDock(id)){
+        if (dockService.remove(id)){
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);

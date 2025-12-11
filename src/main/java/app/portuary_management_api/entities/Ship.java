@@ -2,11 +2,14 @@ package app.portuary_management_api.entities;
 
 import app.portuary_management_api.entities.util.ShipSize;
 import app.portuary_management_api.entities.util.ShipType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -30,14 +33,9 @@ public class Ship {
     @JoinColumn(name = "dock")
     @ManyToOne(optional = false)
     private Dock dock;
-
-    public Ship(String name, String captain, Integer crewshipMembers, ShipType type, Dock dock) {
-        this.name = name;
-        this.captain = captain;
-        this.crewshipMembers = crewshipMembers;
-        this.type = type;
-        this.dock = dock;
-    }
+    @JsonIgnore
+    @OneToMany(mappedBy = "ship", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Freight> freights;
 
     public ShipSize howBig(){
         if(crewshipMembers < 5) return ShipSize.SMALL;

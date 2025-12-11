@@ -1,11 +1,13 @@
 package app.portuary_management_api.services;
 
 import app.portuary_management_api.api.models.ModifyCrewBody;
-import app.portuary_management_api.api.models.ShipDTO;
+import app.portuary_management_api.api.models.dtos.ShipDTO;
 import app.portuary_management_api.entities.Dock;
+import app.portuary_management_api.entities.Freight;
 import app.portuary_management_api.entities.Ship;
 import app.portuary_management_api.entities.daos.ShipDAO;
 import app.portuary_management_api.entities.util.ShipType;
+import app.portuary_management_api.services.util.FreightUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +15,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
-public class ShipService {
+public class ShipService implements CRUDServiceInterface<Ship, ShipDTO>{
 
     private final ShipDAO shipDAO;
     private final DockService dockService;
@@ -25,7 +27,7 @@ public class ShipService {
 
     public boolean changeDock(Ship ship, Long newDockId){
         dockService.shipExits(ship);
-        Dock newDock = dockService.retrieveDock(newDockId);
+        Dock newDock = dockService.retrieve(newDockId);
         ship.setDock(newDock);
         dockService.shipEnters(ship);
         shipDAO.save(ship);
@@ -33,7 +35,7 @@ public class ShipService {
     }
 
     public Ship modifyCrewQuantity(ModifyCrewBody body, Long id){
-        Ship ship = retrieveShip(id);
+        Ship ship = retrieve(id);
         if(body.isIncrease()){
             ship.setCrewshipMembers(ship.getCrewshipMembers() + body.getQuantity());
         }else{
@@ -42,29 +44,39 @@ public class ShipService {
         return ship;
     }
 
+    public Integer howManyItemsOfFreight(String freightType, Long shipId){
+        Ship ship = retrieve(shipId);
+        if (ship != null){
+            List<Freight> freights = ship.getFreights();
+            return FreightUtils.howManyItemsOfFreight(freightType, freights);
+        }
+        return null;
+    }
+
     //CRUD
 
-    public Ship createShip(ShipDTO dto){
-        ShipType type = ShipType.valueOf(dto.getType());
-        Dock dock = dockService.retrieveDock(dto.getDockId());
-        Ship ship = new Ship(dto.getName(), dto.getCaptain(),
-                dto.getCrewshipMembers(), type, dock);
-        dockService.shipEnters(ship);
+    @Override
+    public Ship create(ShipDTO dto){
+        Ship ship = new Ship();
+        mapDtoToEntity(dto, ship);
         return shipDAO.save(ship);
     }
 
-    public Ship retrieveShip(Long id){
+    @Override
+    public Ship retrieve(Long id){
         Optional<Ship> optShip = shipDAO.findById(id);
         return optShip.orElse(null);
     }
 
-    public List<Ship> retrieveAllShips(){
+    @Override
+    public List<Ship> retrieveAll(){
         return shipDAO.findAll();
     }
 
-    public boolean removeShip(Long id){
+    @Override
+    public boolean remove(Long id){
         try {
-            Ship ship = retrieveShip(id);
+            Ship ship = retrieve(id);
             shipDAO.deleteById(id);
             return dockService.shipExits(ship);
         }catch (Exception e){
@@ -72,8 +84,9 @@ public class ShipService {
         }
     }
 
-    public Ship updateShip(Long id, ShipDTO dto){
-        Ship ship = retrieveShip(id);
+    @Override
+    public Ship update(Long id, ShipDTO dto){
+        Ship ship = retrieve(id);
         ShipType type = ShipType.valueOf(dto.getType());
         ship.setName(dto.getName());
         ship.setCaptain(dto.getCaptain());
@@ -86,4 +99,13 @@ public class ShipService {
         return shipDAO.save(ship);
     }
 
+    private void mapDtoToEntity(ShipDTO dto, Ship ship){
+        ShipType type = ShipType.valueOf(dto.getType());
+        Dock dock = dockService.retrieve(dto.getDockId());
+        ship.setCaptain(dto.getCaptain());
+        ship.setCrewshipMembers(dto.getCrewshipMembers());
+        ship.setDock(dock);
+        ship.setType(type);
+        ship.setName(dto.getName());
+    }
 }
