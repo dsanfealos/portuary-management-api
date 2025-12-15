@@ -22,8 +22,7 @@ public class DockService implements CRUDServiceInterface<Dock, DockDTO>{
         this.dockDAO = dockDAO;
     }
 
-    public void shipEnters(Ship ship){
-        Dock dock = ship.getDock();
+    public void shipEnters(Ship ship, Dock dock){
         int berths = checkBerths(ship);
         if (!dock.isFull()) dock.increaseOccupied(berths);
     }

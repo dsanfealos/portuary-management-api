@@ -31,8 +31,6 @@ public class ShipController {
         return new ResponseEntity<>(HttpStatus.CONFLICT);
     }
 
-    //EP. Cargar/Descargar Mercancía
-
 
     @PostMapping("/{id}/crew")
     public ResponseEntity<Ship> changeCrewQuantity(@RequestBody ModifyCrewBody body, @PathVariable Long id){

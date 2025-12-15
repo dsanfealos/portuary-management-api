@@ -29,7 +29,7 @@ public class ShipService implements CRUDServiceInterface<Ship, ShipDTO>{
         dockService.shipExits(ship);
         Dock newDock = dockService.retrieve(newDockId);
         ship.setDock(newDock);
-        dockService.shipEnters(ship);
+        dockService.shipEnters(ship, newDock);
         shipDAO.save(ship);
         return ship.getDock() == newDock;
     }
@@ -49,6 +49,15 @@ public class ShipService implements CRUDServiceInterface<Ship, ShipDTO>{
         if (ship != null){
             List<Freight> freights = ship.getFreights();
             return FreightUtils.howManyItemsOfFreight(freightType, freights);
+        }
+        return null;
+    }
+
+    public Integer howManyDifferentFreightsOfType(String freightType, Long shipId){
+        Ship ship = retrieve(shipId);
+        if (ship != null){
+            List<Freight> freights = ship.getFreights();
+            return FreightUtils.howManyDifferentFreightsOfType(freightType, freights);
         }
         return null;
     }
@@ -93,7 +102,6 @@ public class ShipService implements CRUDServiceInterface<Ship, ShipDTO>{
         ship.setCrewshipMembers(dto.getCrewshipMembers());
         ship.setType(type);
         if (!Objects.equals(dto.getDockId(), ship.getDock().getId())){
-            //TODO CHECK!!
             changeDock(ship, dto.getDockId());
         }
         return shipDAO.save(ship);

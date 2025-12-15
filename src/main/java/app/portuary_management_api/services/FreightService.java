@@ -9,6 +9,7 @@ import app.portuary_management_api.entities.daos.FreightDAO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -40,23 +41,41 @@ public class FreightService implements CRUDServiceInterface<Freight, FreightDTO>
         return freightDAO.save(freight);
     }
 
-    //TODO Look for existing Freights of that type in the Dock/Ship
     public Freight transferPartialFreight(TransferFreightBody body){
-        Freight newFreight = new Freight();
         Freight oldFreight = retrieve(body.getFreightId());
-        Dock dock = dockService.retrieve(body.getDockId());
-        Ship ship = shipService.retrieve(body.getShipId());
-
-        oldFreight.substractQuantity(body.getQuantity());
-        newFreight.setQuantity(body.getQuantity());
-        newFreight.setType(oldFreight.getType());
+        Freight newFreight;
 
         if (body.isFromShip()){
+            newFreight = isThereSameTypeInDock(oldFreight.getType(), body.getDockId());
+            Dock dock = dockService.retrieve(body.getDockId());
             newFreight.setDock(dock);
         }else{
+            newFreight = isThereSameTypeInShip(oldFreight.getType(), body.getShipId());
+            Ship ship = shipService.retrieve(body.getShipId());
             newFreight.setShip(ship);
         }
+
+        oldFreight.substractQuantity(body.getQuantity());
+        newFreight.addQuantity(body.getQuantity());
+        newFreight.setType(oldFreight.getType());
+
         return freightDAO.save(newFreight);
+    }
+
+    private Freight isThereSameTypeInDock(String type, Long dockId){
+        Dock dock = dockService.retrieve(dockId);
+        List<Freight> freights = dock.getFreights().stream()
+                .filter(f -> Objects.equals(f.getType(), type))
+                .toList();
+        return freights.isEmpty() ? new Freight() : freights.getFirst();
+    }
+
+    private Freight isThereSameTypeInShip(String type, Long shipId){
+        Ship ship = shipService.retrieve(shipId);
+        List<Freight> freights = ship.getFreights().stream()
+                .filter(f -> Objects.equals(f.getType(), type))
+                .toList();
+        return freights.isEmpty() ? new Freight() : freights.getFirst();
     }
 
     //CRUD

@@ -19,12 +19,17 @@ public class Freight {
     private Long id;
     private String type;
     private Integer quantity;
+    @JoinColumn(name = "dock")
     @ManyToOne
     private Dock dock;
+    @JoinColumn(name = "ship")
     @ManyToOne
     private Ship ship;
 
     public void addQuantity(int extraQuantity){
+        if(this.quantity == null){
+            this.quantity = 0;
+        }
         this.quantity = this.quantity + extraQuantity;
     }
 

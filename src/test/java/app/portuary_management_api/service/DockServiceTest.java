@@ -31,7 +31,7 @@ public class DockServiceTest {
         dockB = new Dock(3L, "Puerto del Norte", "Bilbao", 3000, 500
                 , Collections.emptyList(), Collections.emptyList());
         ship = new Ship(4L, "Merluza", "Laura", 6
-                , ShipType.FISHING,dockA);
+                , ShipType.FISHING,dockA, Collections.emptyList());
     }
 
     @Test
@@ -46,7 +46,7 @@ public class DockServiceTest {
     public void testShipEntersShipExits(){
         dockService.shipExits(ship);
         Assertions.assertEquals(dockA.getOccupied(), 147);
-        dockService.shipEnters(ship);
+        dockService.shipEnters(ship, dockA);
         Assertions.assertEquals(dockA.getOccupied(), 150);
     }
 }

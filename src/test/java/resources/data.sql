@@ -7,3 +7,8 @@ INSERT INTO ship (name, captain, crewship_members, type, dock)
     VALUES ('Angelino', 'Juana', 14, 'FISHING', 1),
            ('El Travieso', 'Roberto', 4, 'PERSONAL', 1),
            ('Lobo de Mar', 'Laura', 26, 'CARGO', 1);
+
+INSERT INTO freight (type, quantity, dock, ship)
+    VALUES ('Patatas', 500, 1, null),
+           ('Patatas', 29, null, 1),
+           ('Madera', 53, null, 2);

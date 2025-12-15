@@ -1,5 +1,6 @@
 package app.portuary_management_api.service;
 
+import app.portuary_management_api.api.models.dtos.ShipDTO;
 import app.portuary_management_api.entities.Dock;
 import app.portuary_management_api.entities.Ship;
 import app.portuary_management_api.entities.util.ShipType;
@@ -50,5 +51,18 @@ public class ShipServiceTest {
         Assertions.assertEquals(dock2.getId(), idB);
         Assertions.assertEquals(dock1.getOccupied(), 293);
         Assertions.assertEquals(dock2.getOccupied(), 207);
+    }
+
+    @Test
+    @Transactional
+    public void testUpdate(){
+        ShipDTO dto = new ShipDTO("Angelina", "Juana", 24, "FISHING", 2L);
+        Dock newDock = dockService.retrieve(2L);
+
+        Ship updatedShip = shipService.update(1L, dto);
+
+        Assertions.assertEquals(newDock, updatedShip.getDock());
+        Assertions.assertEquals(dto.getName(), updatedShip.getName());
+        Assertions.assertEquals(updatedShip.getId(), shipService.retrieve(1L).getId());
     }
 }
